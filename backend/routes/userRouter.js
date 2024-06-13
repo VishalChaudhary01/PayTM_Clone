@@ -2,6 +2,7 @@ import express from 'express';
 import zod from 'zod';
 import jwt from 'jsonwebtoken';
 import User from '../model/userModel.js';
+import isAuth from '../middlewares/isAuth.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -68,5 +69,18 @@ router.post('/signin', async (req, res) => {
      })
 });
 
+const updateBody = zod.object({
+     password: zod.string().optional(),
+     firstName: zod.string().optional(),
+     lastName: zod.string().optional(),
+})
+router.put('/user', isAuth, async (req, res, next) => {
+     const { success } = updateBody.safeParse(req.body)
+     if (!success) return res.status(411).json({ message: "Error while updating information"})
+     
+     await User.updateOne({ _id: req.userId }, req.body);
+
+     res.json({ message: "Updated successfully"})
+})
 
 export default router;
