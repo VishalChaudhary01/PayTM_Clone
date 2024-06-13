@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken'
 const isAuth = (req, res, next) => {
      const authHeader = req.headers.authorization;
 
-     if (!authHeader || authHeader.startsWith('Bearer')) {
-          return res.status(403).json({})
+     if (!authHeader || !authHeader.startsWith('Bearer')) {
+          return res.status(403).json({ message: "No token found" });
      } 
 
      const token = authHeader.split(' ')[1];
@@ -15,7 +15,7 @@ const isAuth = (req, res, next) => {
 
           next();
      } catch (error) {
-          return res.status(403).json({});
+          return res.status(403).json({ message: "Invalid token" });
      }
 }
 

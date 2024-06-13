@@ -4,8 +4,6 @@ import jwt from 'jsonwebtoken';
 import User from '../model/userModel.js';
 import isAuth from '../middlewares/isAuth.js';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 const router = express.Router();
 
 const signupBody = zod.object({
@@ -17,12 +15,12 @@ const signupBody = zod.object({
 
 router.post('/signup', async (req, res) => {
      const { success } = signupBody.safeParse(req.body);
-     if (!success) res.status(411).json({ message: "Email already taken / Incorrect inputs" });
+     if (!success) res.status(411).json({ message: "Incorrect inputs" });
      
      const existUser = await User.findOne({
           username: req.body.username
      })
-     if (existUser) return res.status(411).json({ message: "Email already taken / Incorrect inputs"});
+     if (existUser) return res.status(411).json({ message: "Email already taken"});
 
      const user = await User.create({
           username: req.body.username,
@@ -34,7 +32,7 @@ router.post('/signup', async (req, res) => {
 
      const token = jwt.sign({
           userId
-     }, JWT_SECRET );
+     }, process.env.JWT_SECRET );
 
      res.json({
           message: "User created successfully",
@@ -58,7 +56,7 @@ router.post('/signin', async (req, res) => {
      if (user) {
           const token = jwt.sign({
                userId: user._id
-          }, JWT_SECRET);
+          }, process.env.JWT_SECRET);
 
           res.json({ token: token })
           return;
@@ -69,12 +67,13 @@ router.post('/signin', async (req, res) => {
      })
 });
 
+
 const updateBody = zod.object({
      password: zod.string().optional(),
      firstName: zod.string().optional(),
      lastName: zod.string().optional(),
 })
-router.put('/user', isAuth, async (req, res, next) => {
+router.put('/', isAuth, async (req, res) => {
      const { success } = updateBody.safeParse(req.body)
      if (!success) return res.status(411).json({ message: "Error while updating information"})
      
