@@ -73,13 +73,42 @@ const updateBody = zod.object({
      firstName: zod.string().optional(),
      lastName: zod.string().optional(),
 })
+
 router.put('/', isAuth, async (req, res) => {
+     const { firstName, lastName, password } = req.body;
      const { success } = updateBody.safeParse(req.body)
      if (!success) return res.status(411).json({ message: "Error while updating information"})
      
-     await User.updateOne({ _id: req.userId }, req.body);
-
+     await User.updateOne({ _id: req.userId }, { firstName, lastName, password });
      res.json({ message: "Updated successfully"})
 })
+
+
+router.get('/bulk', async (req, res) => {
+     const filter = req.query.filter || "";
+     const users = await User.find({
+          $or: [{
+               firstName: {
+                    "$regex": filter,
+                    "$options": "i"
+               }
+          }, {
+               lastName: {
+                    "$regex": filter,
+                    "$options": "i"
+               }
+          }]
+     })
+
+     res.json({
+          users: users.map(user => ({
+               username: user.username,
+               firstName: user.firstName,
+               lastName: user.lastName,
+               _id: user._id
+          }))
+     })
+})
+
 
 export default router;
