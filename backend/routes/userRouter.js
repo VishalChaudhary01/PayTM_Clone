@@ -2,6 +2,7 @@ import express from 'express';
 import zod from 'zod';
 import jwt from 'jsonwebtoken';
 import User from '../model/userModel.js';
+import Account from '../model/accountModel.js'
 import isAuth from '../middlewares/isAuth.js';
 
 const router = express.Router();
@@ -29,6 +30,11 @@ router.post('/signup', async (req, res) => {
           lastName: req.body.lastName,
      })
      const userId = user._id;
+
+     await Account.create({
+          userId,
+          balance: 1 + Math.rendom() * 10000
+     })
 
      const token = jwt.sign({
           userId
