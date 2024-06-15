@@ -23,23 +23,27 @@ router.post('/transfer',isAuth, async (req, res) => {
 
      if (!account || account.balance < amount) {
           await session.abortTransaction();
+          session.endSession();
           console.log("Insufficient balance")
-          return;
+          return res.status(400).json({ message: "Insufficient balance" });
      }
 
      const toAccount = await Account.findOne({ userId: to }).session(session);
 
      if (!toAccount) {
           await session.abortTransaction();
+          session.endSession();
           console.log("Invalid account");
-          return;
+          return res.status(400).json({ message: "Invalid account"})
      }
 
      await Account.updateOne({ userId: req.userId }, { $inc: { balance: -amount } }).session(session);
      await Account.updateOne({ userId: to }, { $inc: { balance: amount } }).session(session);
           
      await session.commitTransaction();
+     session.endSession();
      console.log("done");
+     return res.status(200).json({ message: "Transfer successful" });
 })
 
 export default router;
