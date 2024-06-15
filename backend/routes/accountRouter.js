@@ -1,6 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import isAuth from '../middlewares/isAuth';
+import isAuth from '../middlewares/isAuth.js';
 import Account from '../model/accountModel.js';
 
 const router = express.Router();
