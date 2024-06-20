@@ -16,7 +16,7 @@ const signupBody = zod.object({
 
 router.post('/signup', async (req, res) => {
      const { success } = signupBody.safeParse(req.body);
-     if (!success) res.status(411).json({ message: "Incorrect inputs" });
+     if (!success) res.status(411).json({ message: "Invalid credentials" });
      
      const existUser = await User.findOne({
           username: req.body.username
@@ -53,24 +53,21 @@ const signinBody = zod.object({
 })
 router.post('/signin', async (req, res) => {
      const { success } = signinBody.safeParse(req.body);
-     if (!success) return res.status(411).json({ message: "Incorrect inputs" })
+     if (!success) return res.status(411).json({ message: "Invalid credentials" })
      
      const user = await User.findOne({ 
-          username :req.body.username,
+          username: req.body.username,
      })
+     if (!user) return res.status(404).json({ message: "Invalid credentials"})
 
-     if (user) {
-          const token = jwt.sign({
-               userId: user._id
-          }, process.env.JWT_SECRET);
+     const isMatch = await user.matchPassword(req.body.password);
+     if(!isMatch) return res.status(400).json({ message: "Invalid credentials"})
 
-          res.json({ token: token })
-          return;
-     }
+     const token = jwt.sign({
+          userId: user._id
+     }, process.env.JWT_SECRET);
 
-     res.status(411).json({ 
-          message: "Error while logginh in"
-     })
+     res.json({message: "Sign in successfully", token: token })
 });
 
 
