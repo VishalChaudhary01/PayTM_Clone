@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
 
-export const Balance = ({ value }) => {
-     const [balance, setBalance] = useState()
+export const Balance = () => {
+     const [balance, setBalance] = useState(0)
 
      useEffect(() => {
           axios.get('http://localhost:5000/api/v1/account/balance', {
@@ -11,7 +11,7 @@ export const Balance = ({ value }) => {
                }
           })
           .then(response => {
-               setBalance(response.data.balance)
+               setBalance(parseInt(response.data.balance))
           })
      }, []);
      

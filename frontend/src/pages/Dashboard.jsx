@@ -5,8 +5,6 @@ import { Users } from '../components/Users'
 
 export const Dashboard = () => {
 
-  
-
   return (
     <>
     <Appbar />

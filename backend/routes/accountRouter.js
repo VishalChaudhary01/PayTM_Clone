@@ -42,7 +42,6 @@ router.post('/transfer',isAuth, async (req, res) => {
           
      await session.commitTransaction();
      session.endSession();
-     console.log("done");
      return res.status(200).json({ message: "Transfer successful" });
 })
 
